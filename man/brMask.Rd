@@ -14,7 +14,8 @@ Assigns identification randomly to one of the variables of the dataset as chosen
      initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, fixed=NULL,
      lme.random=NULL, lme.formula=NULL,
      glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, 
-     glm.indep.cols=NULL, glm.family=NULL, arguments=FALSE, verbose=TRUE) 
+     glm.indep.cols=NULL, glm.formula=NULL, glm.binomialrhs=NULL, 
+     glm.family=NULL, arguments=FALSE, verbose=TRUE) 
 }
 \arguments{
   \item{data}{Dataset to be evaluated}
@@ -37,6 +38,10 @@ Assigns identification randomly to one of the variables of the dataset as chosen
   \item{glm.response.cols}{Vector of column numbers (2) of responses and 
   nonresponses}
   \item{glm.indep.cols}{Column number(s) of independent variables}
+  \item{glm.formula}{Formula relating response to independent variables. Required
+       except for family=binomial}
+  \item{glm.binomialrhs}{Right-hand side of formula, as text object. Required for 
+       family=binomial}
   \item{glm.family}{Error distribution and link}
   \item{arguments}{Logical. TRUE causes display of arguments of forsearch_xxx
       function}
@@ -75,19 +80,19 @@ Assigns identification randomly to one of the variables of the dataset as chosen
 {Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.}
 {Pinheiro, JC and DM Bates. Mixed-Effects Models in S and S-Plus, Springer, New York, 2000.}
 {https://CRAN.R-project.org/package=nlme}
+{https://CRAN.R-project.org/package=forsearch}
 }
 \author{William R. Fairweather}
-\examples{
-Observation <- 1:14
-Dose <- c(3.4,5.2,7,8.5,10.5,13,18,21,28,6.5,10,14,21.5,29)
-Prep <- factor(c(rep(0,9),rep(1,5)))
-Convulse <- c(0,5,11,14,18,21,23,30,27,2,10,18,21,27)
-Total <- c(33,32,38,37,40,37,31,37,30,40,30,40,35,37)
-NoConvulse <- Total-Convulse
-mice <- data.frame(Observation,Dose,Prep,Convulse,Total,NoConvulse)
-%print(mice)
-brMask(data=mice,blinded="Prep",analysis="glm",initial.sample=100,
-fixed=Convulse~Prep:Dose,glm.response.cols=c(4,6),glm.indep.cols=2,
-glm.family=binomial("log"))
-}
+%\examples{
+%Observation <- 1:14
+%Dose <- c(3.4,5.2,7,8.5,10.5,13,18,21,28,6.5,10,14,21.5,29)
+%Prep <- factor(c(rep(0,9),rep(1,5)))
+%Convulse <- c(0,5,11,14,18,21,23,30,27,2,10,18,21,27)
+%Total <- c(33,32,38,37,40,37,31,37,30,40,30,40,35,37)
+%NoConvulse <- Total-Convulse
+%mice <- data.frame(Observation,Dose,Prep,Convulse,Total,NoConvulse)
+%brMask(data=mice,blinded="Prep",analysis="glm",initial.sample=100,
+%fixed=Convulse~Prep:Dose,glm.response.cols=c(4,6),glm.indep.cols=c(2,3),
+%glm.family=binomial("log"),glm.binomialrhs="Dose+Prep")
+%}
 \keyword{ manip }

@@ -1,12 +1,12 @@
-d8fdea7ea1ee63a8c49d8340888b9b44 *DESCRIPTION
+0acd9df7af2b0a253c6304e62e7bf677 *DESCRIPTION
 c1e67cc0bb7d8983fd5368e00b6954f1 *NAMESPACE
-522f9ad0b9ef9f64d68e2eac0c0e3b99 *NEWS.md
-dadeab1bdb289f693711d774488c355c *R/brMask.R
+392209fcb148fb989c678ad252682d0e *NEWS.md
+01c5807c4d489419dbcbe3676bde99c9 *R/brMask.R
 541a81ceca3e1530c4d544aa5b662c9c *R/plotdiag.blind.all.R
 45a52a615b090680e91c90d87594d837 *R/unmask.R
 57a886972f095a1b25c71393b5075f41 *README.md
 0af054c6d02eee3507c3461b690c8e66 *inst/extdata/micebrM.R
 0c55866281df25331becd5c9fd76733b *inst/extdata/test1.R
-5be55ebaa822c0dcad9f7d2061f8c20f *man/brMask.Rd
+7c6b77c813a03ad1ada3f739e705a3d5 *man/brMask.Rd
 1abd0b8b41db4d76882660f727b2773e *man/plotdiag.blind.all.rd
 97ec50537ac49c738f575c9178846c4e *man/unmask.Rd

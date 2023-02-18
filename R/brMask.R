@@ -3,7 +3,8 @@ brMask <-
 function (data, blinded, analysis=c("lme", "lm", "glm"), 
 initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, fixed=NULL,
 lme.random=NULL, lme.formula=NULL,
-glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, glm.indep.cols=NULL, glm.family=NULL,
+glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, glm.indep.cols=NULL, 
+glm.formula=NULL, glm.binomialrhs=NULL, glm.family=NULL,
 arguments=FALSE, verbose=TRUE) 
 {
      # NAME                                               brMask
@@ -48,6 +49,14 @@ arguments=FALSE, verbose=TRUE)
      got.one <- (blinded != namesdata)
      if(all(got.one))stop("No variable in the dataset has been identified as the one to blind.")
      blindcol <- (1:ncolsdata)[!got.one]
+     #
+     ###############################################################
+     # Ensure that formula, binomialrhs and family are coordinated #
+     ###############################################################
+     if(analysis=="glm"){
+          if(glm.family=="binomial" & is.null(glm.binomialrhs)) {stop("Supply the right-hand side of the formula as a quoted text for glm.binomialrhs.")}
+          if(glm.family!="binomial" & is.null(glm.formula)) {stop("Supply the text of glm.formula")}  
+     }
      #
      ###########################################################
      # Randomize rows of data frame of observations            #
@@ -134,7 +143,8 @@ arguments=FALSE, verbose=TRUE)
           if(arguments)Hmisc::prn(args(forsearch::forsearch_glm))
           forsearch.out <- forsearch::forsearch_glm(initial.sample=initial.sample, cobs=glm.cobs, 
                  response.cols=glm.response.cols, indep.cols=glm.indep.cols,
-                 family=glm.family, data=df2, n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi,
+                 family=glm.family, formula=glm.formula, binomialrhs=glm.binomialrhs, data=df2, 
+                 n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi,
                  skip.step1=skip.step1, unblinded=FALSE, verbose=FALSE)
      }
      ################################
