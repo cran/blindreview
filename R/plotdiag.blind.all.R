@@ -30,7 +30,7 @@ function (object, treatnum=1, mt = " ", st = " ", cc = NULL, ccrand = NULL, objn
      print("The Call that created this database was", quote=FALSE)
      print(MCobject)
      analysis <- object[[1]]
-     if(!any(analysis==c("lm","lme","glm"))){
+     if(!any(analysis==c("lm","lme","glm","cph"))){
           Hmisc::prn(analysis)
           stop("Call does not indicate a recognized underlying analysis function")
      }
@@ -44,15 +44,9 @@ function (object, treatnum=1, mt = " ", st = " ", cc = NULL, ccrand = NULL, objn
      cpt <- paste("Pooled blind review", rundate, sep=" ")
      }
      if(analysis=="lm"){
-#          plotdiag.AICX(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "AICX"), verbose=FALSE)
           forsearch::plotdiag.Cook(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Cook"), addline="none", verbose=FALSE)  
-#          plotdiag.deviance.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviance residuals"), verbose=FALSE)
-#          plotdiag.deviances(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviances"), verbose=FALSE)
-#          plotdiag.fit3(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "fit3"), verbose=FALSE)
           forsearch::plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "leverage"), verbose=FALSE)          
           forsearch::plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params fixed"), verbose=FALSE)
-#          plotdiag.params.random(object, coeff.codenums=ccrand, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params random"), verbose=FALSE)
-#          plotdiag.phihatx(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "phihatx"), verbose=FALSE)
           forsearch::plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "residuals"), verbose=FALSE)         
           forsearch::plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "s2"), addline="none", verbose=FALSE)
           forsearch::plotdiag.tstats(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "tstats"), verbose=FALSE)  
@@ -62,17 +56,12 @@ function (object, treatnum=1, mt = " ", st = " ", cc = NULL, ccrand = NULL, objn
      }
 
      if(analysis=="lme"){
-#          plotdiag.AICX(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "AICX"), verbose=FALSE)
           forsearch::plotdiag.Cook(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Cook") , addline="none", verbose=FALSE )
-#          plotdiag.deviance.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviance residuals"), verbose=FALSE)
-#          plotdiag.deviances(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviances"), verbose=FALSE)
           forsearch::plotdiag.fit3(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "fit3"), verbose=FALSE)
           forsearch::plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "leverage"), verbose=FALSE)          
           forsearch::plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params fixed"), verbose=FALSE)
           forsearch::plotdiag.params.random(object, coeff.codenums=ccrand, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params random"), verbose=FALSE)
-#          plotdiag.phihatx(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "phihatx"), verbose=FALSE)
           forsearch::plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "residuals"), verbose=FALSE)         
-#          plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "s2"), addline="none", verbose=FALSE)
           forsearch::plotdiag.tstats(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "tstats"), verbose=FALSE)  
 
           if(objnames)Hmisc::prn(names(object))
@@ -81,16 +70,11 @@ function (object, treatnum=1, mt = " ", st = " ", cc = NULL, ccrand = NULL, objn
 
      if(analysis=="glm"){
           forsearch::plotdiag.AICX(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "AICX"), verbose=FALSE)
-#          plotdiag.Cook(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Cook"), addline="none", verbose=FALSE)          Should be doing this?  
           forsearch::plotdiag.deviance.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviance residuals"), verbose=FALSE)
           forsearch::plotdiag.deviances(object, devtype="R", maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviances type R"), verbose=FALSE)
           forsearch::plotdiag.deviances(object, devtype="N", maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Deviances type N"), verbose=FALSE)
-#          plotdiag.fit3(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "fit3"), verbose=FALSE)
           forsearch::plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "leverage"), verbose=FALSE)          
           forsearch::plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params fixed"), verbose=FALSE)
-#          plotdiag.params.random(object, coeff.codenums=ccrand, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params random"), verbose=FALSE)
-#          plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "residuals"), verbose=FALSE )
-#          plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "s2"), addline="none", verbose=FALSE)
           forsearch::plotdiag.tstats(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "tstats"), verbose=FALSE)  
 
           if(objnames)Hmisc::prn(names(object))
@@ -98,6 +82,16 @@ function (object, treatnum=1, mt = " ", st = " ", cc = NULL, ccrand = NULL, objn
 
           forsearch::plotdiag.phihatx(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "phihatx"), verbose=FALSE)
      }
+if(analysis=="cph"){
+          forsearch::plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "leverage"), verbose=FALSE)          
+          forsearch::plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "params fixed"), verbose=FALSE)
+          forsearch::plotdiag.loglik(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "loglik"), verbose=FALSE)  
+          forsearch::plotdiag.lrt(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "LRT"), verbose=FALSE)  
+          forsearch::plotdiag.Wald(object, maintitle = mt, subtitle = st, caption = cpt, wmf=paste(wmflead, "Wald"), verbose=FALSE)  
+
+          if(objnames)Hmisc::prn(names(object))
+          print(forsearch::search.history(object))}
+
      if(verbose){
         print("", quote=FALSE)
         print("Finished running plotdiag.blind.all", quote=FALSE)

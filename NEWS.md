@@ -1,10 +1,10 @@
-2/18/2023 blindreview version 1.1.0
+8/11/2023 blindreview version 1.2.0
 ===================================
 Major
    None
    
 Moderate
-   Made arguments compatible with forsearch_glm
+   Made arguments of brMask compatible with forsearch_cph
 
 Minor
    None

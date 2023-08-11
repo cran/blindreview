@@ -1,12 +1,21 @@
-#' @export
 brMask <-
-function (data, blinded, analysis=c("lme", "lm", "glm"), 
-initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, fixed=NULL,
+function (data, blinded, analysis, 
+initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, 
+
+fixed=NULL,
+
 lme.random=NULL, lme.formula=NULL,
+
 glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, glm.indep.cols=NULL, 
 glm.formula=NULL, glm.binomialrhs=NULL, glm.family=NULL,
-arguments=FALSE, verbose=TRUE) 
-{
+
+cph.formula.elements=NULL, cph.event.time=NULL, cph.status=NULL, cph.x=NULL, 
+cph.ties = NULL, cph.redunCorr = 0.9, 
+
+arguments=FALSE, 
+
+verbose=TRUE) {
+
      # NAME                                               brMask
      #
      # VALUE               List containing forward search after randomizing levels of blinding variable and all observation numbers. Includes
@@ -38,7 +47,7 @@ arguments=FALSE, verbose=TRUE)
      ##########################################################################
      # Ensure that one of the available analysis functions has been requested #
      ##########################################################################  
-     if(analysis !="lme" & analysis !="lm" & analysis !="glm")stop("Only one of the 3 analysis arguments may be used.")
+     if(analysis !="lme" & analysis !="lm" & analysis !="glm" & analysis !="cph")stop("Only one of the 4 analysis arguments may be used.")
      #
      ##############################################################
      # Ensure that the named blinding variable is in the database #
@@ -49,14 +58,6 @@ arguments=FALSE, verbose=TRUE)
      got.one <- (blinded != namesdata)
      if(all(got.one))stop("No variable in the dataset has been identified as the one to blind.")
      blindcol <- (1:ncolsdata)[!got.one]
-     #
-     ###############################################################
-     # Ensure that formula, binomialrhs and family are coordinated #
-     ###############################################################
-     if(analysis=="glm"){
-          if(glm.family=="binomial" & is.null(glm.binomialrhs)) {stop("Supply the right-hand side of the formula as a quoted text for glm.binomialrhs.")}
-          if(glm.family!="binomial" & is.null(glm.formula)) {stop("Supply the text of glm.formula")}  
-     }
      #
      ###########################################################
      # Randomize rows of data frame of observations            #
@@ -119,64 +120,44 @@ arguments=FALSE, verbose=TRUE)
      # Run forsearch_xxx for chosen analysis #
      #######################################################
      if(analysis=="lme"){
-#                   function (fixed, data, random, formula, initial.sample = 1000, 
-#                   n.obs.per.level = 1, skip.step1 = NULL, XmaxIter = 1000, 
-#                   XmsMaxIter = 1000, Xtolerance = 0.01, XniterEM = 10, XmsMaxEval = 400, 
-#                   XmsTol = 1e-05, Xopt = "optim", unblinded = TRUE, begin.diagnose = 1000, 
-#                   verbose = TRUE) 
           if(arguments)Hmisc::prn(args(forsearch::forsearch_lme))
+
           forsearch.out <- forsearch::forsearch_lme(fixed=fixed, data=df2, random=lme.random, formula=lme.formula,
               initial.sample=initial.sample, n.obs.per.level=n.obs.per.level, skip.step1=skip.step1,   
               unblinded=FALSE, verbose=FALSE)
     }
      if(analysis=="lm"){
-#                  function (formula, data, initial.sample = 1000, n.obs.per.level = 1, 
-#                  skip.step1 = NULL, unblinded = TRUE, diagnose = FALSE, verbose = TRUE) 
           if(arguments)Hmisc::prn(args(forsearch::forsearch_lm))
+
           forsearch.out <- forsearch::forsearch_lm(formula=fixed, data=df2, initial.sample=initial.sample,
                    n.obs.per.level=n.obs.per.level, skip.step1=skip.step1, unblinded=FALSE, verbose=FALSE)
      }
      if(analysis=="glm"){
-#                 function (initial.sample = 1000, cobs, response.cols, indep.cols, 
-#                 family, data, n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, 
-#                 unblinded = TRUE, diagnose = FALSE, verbose = TRUE) 
           if(arguments)Hmisc::prn(args(forsearch::forsearch_glm))
+
           forsearch.out <- forsearch::forsearch_glm(initial.sample=initial.sample, cobs=glm.cobs, 
                  response.cols=glm.response.cols, indep.cols=glm.indep.cols,
                  family=glm.family, formula=glm.formula, binomialrhs=glm.binomialrhs, data=df2, 
                  n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi,
                  skip.step1=skip.step1, unblinded=FALSE, verbose=FALSE)
      }
+     if(analysis=="cph"){
+          if(arguments)Hmisc::prn(args(forsearch::forsearch_cph))
+
+          forsearch_out <- forsearch::forsearch_cph(formula.elements=cph.formula.elements, event.time=cph.event.time, 
+                 status=cph.status, x=cph.x, initial.sample = initial.sample, 
+                 n.obs.per.level = n.obs.per.level, skip.step1 = skip.step1, ties = cph.ties, 
+                 redunCorr = cph.redunCorr, unblinded = FALSE, verbose = FALSE) 
+     }
+     #
      ################################
      # Add date and time to ORIGobs #
      ################################
      ORIGobs <- list("Randomization Date"=date(), Variable=masktreats, Observations=ORIGobs)
      #
-# outputs to pick up and re-output here:
-#lm
-#    list(`Rows in stage` = rows.in.model, `Standardized residuals` = residuals, 
-#        `Number of model parameters` = p, Sigma = sigma, `Fixed parameter estimates` = param.est, 
-#        `s^2` = s.2, Leverage = leverage, `Modified Cook distance` = modCook, 
-#        `t statistics` = t.set, Call = MC)
-#glm
-#    list(`Rows in stage` = rows.in.model, Family = family, 
-#        `Number of model parameters` = p, `Fixed parameter estimates` = param.est, 
-#        `Residual deviance` = glmdeviance, `Null deviance` = glmnulldeviance, 
-#        PhiHat = glmphi, `Deviance residuals and augments` = ADdevres.df, 
-#        AIC = glmaic, Leverage = leverage[-1, ], `t statistics` = t.set, 
-#        Call = MC)
-#lme
-#    list(`Number of rows included in Step 1` = mstart - 1,
-#        `Rows by subgroup` = fixdat.by.group, `Rows in stage` = rows.in.set, 
-#        Sigma = sigma, `Standardized residuals` = hold.residuals, 
-#        `Fixed parameter estimates` = param.est, `Random parameter estimates` = hold.coeffs.random, 
-#        Leverage = leverage[-1, ], `Modified Cook distance` = modCook, 
-#        Dims = zholdlme$dims, `t statistics` = t.set, `Fit statistics` = hold.summary.stats, 
-#        Call = MC)
-
-     ######################################################
-     # Output list has general, lm, glm, and lme elements #
-     ######################################################
+     ##########################################################
+     # Output list has general, lm, glm, lme and cph elements #
+     ##########################################################
      listout.br <- list(
         Analysis =                            analysis,
         Unmask =                              ORIGobs,     
@@ -203,7 +184,9 @@ arguments=FALSE, verbose=TRUE)
         "Random parameter estimates" =        forsearch.out$"Random parameter estimates", 
          Dims =                               forsearch.out$Dims, 
         "Fit statistics" =                    forsearch.out$"Fit statistics", 
-
+        "Wald Test" =                         forsearch.out$"Wald Test",
+        "LogLikelihood"=                      forsearch.out$LogLikelihood,
+        "Likelihood ratio test"=              forsearch.out$"Likelihood ratio test",
         "forsearch Call" =                    forsearch.out$Call,
          Call =                               MC
      )

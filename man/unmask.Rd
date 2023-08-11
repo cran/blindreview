@@ -3,7 +3,7 @@
 \title{Print Tables of Encoded and Original Variable IDs and Observation Numbers
 }
 \description{Prints tables resulting from masking performed by brMask function
-     to permit user to identify potential outliers in their original identities
+     to permit user to identify potential outliers by their original identities
 }
 \usage{unmask(object, obsrange=NULL, verbose=TRUE)
 }
