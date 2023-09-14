@@ -1,3 +1,4 @@
+#' @export
 brMask <-
 function (data, blinded, analysis, 
 initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, 

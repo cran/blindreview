@@ -54,7 +54,7 @@ Assigns identification randomly to one of the variables of the dataset as chosen
        of event.time, First column is Observation. Factor variables must be defined 
        in advance. Does not include event time or status.}
   \item{cph.ties}{Character string specifying the method of handling ties in event
-       time, "ephron", "breslow" or "exact", . See survival::coxph for definitions. 
+       time, "efron", "breslow" or "exact", . See survival::coxph for definitions. 
        Default is "efron" if specified =NULL}
   \item{cph.redunCorr}{Level of correlation required before declare variables
        are redundant}

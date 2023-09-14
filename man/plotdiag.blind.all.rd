@@ -3,7 +3,7 @@
 \title{Plot Results of Blind Review}
 \description{
 Plots results from running brMask on a dataset using plotting functions found in 
-   forsearch package.}
+   blindreview and forsearch packages.}
 \usage{
 plotdiag.blind.all(object, treatnum, mt=" ", st=" ", cc=NULL, ccrand=NULL, 
     objnames=FALSE, verbose=TRUE)
