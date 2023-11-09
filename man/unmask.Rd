@@ -16,11 +16,11 @@
 }
 \value{None returned, printout only}
 \author{William R. Fairweather}
-\examples{
-info4 <- system.file("extdata", "micebrM.R", package="blindreview");
-brMaskOut <- source(info4);
-print(brMaskOut);
-brMaskOut <- brMaskOut[[1]];
-unmask(brMaskOut)
-}
+%\examples{
+%info4 <- system.file("extdata", "micebrM.R", package="blindreview");
+%brMaskOut <- source(info4);
+%print(brMaskOut);
+%brMaskOut <- brMaskOut[[1]];
+%unmask(brMaskOut)
+%}
 \keyword{ manip }

@@ -11,7 +11,7 @@ working directory.
 plotdiag.blind.fixed(forn, coeff.codenums=NULL, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here",wmf = "Put_stored_name_here", 
 Cairo=TRUE, printgraph=TRUE,legend = "Dummy legend name",  
-diagnose = FALSE,verbose = TRUE)
+verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_xxx
@@ -35,8 +35,7 @@ diagnose = FALSE,verbose = TRUE)
 }
   \item{legend}{Name of legend
 }
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors
-}
+  
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }

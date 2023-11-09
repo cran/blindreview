@@ -11,12 +11,12 @@ Assigns identification randomly to one of the variables of the dataset as chosen
      plotdiag.blind.all function.
 }
 \usage{brMask(data, blinded, analysis, 
-     initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, fixed=NULL,
+     initial.sample=1000, n.obs.per.level=1, fixed=NULL,
      lme.random=NULL, lme.formula=NULL,
      glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, 
      glm.indep.cols=NULL, glm.formula=NULL, glm.binomialrhs=NULL, 
      glm.family=NULL, cph.formula.elements=NULL, cph.event.time=NULL, 
-     cph.status=NULL, cph.x=NULL, cph.ties=NULL, cph.redunCorr=0.9,
+     cph.status=NULL, cph.x=NULL, cph.ties=NULL, 
      arguments=FALSE, verbose=TRUE) 
 }
 \arguments{
@@ -26,8 +26,6 @@ Assigns identification randomly to one of the variables of the dataset as chosen
   \item{initial.sample}{Number of observations in Step 1 of forward search}
   \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
         factor levels}
-  \item{skip.step1}{NULL or a vector of integers for observations to be included
-   in Step 1}
   \item{fixed}{Fixed effects formula as described in stats::lm}
   \item{lme.random}{Random effects formula as described in nlme::lme}
   \item{lme.formula}{a simplified formula of the form resp ~ cov | group where resp
@@ -56,12 +54,12 @@ Assigns identification randomly to one of the variables of the dataset as chosen
   \item{cph.ties}{Character string specifying the method of handling ties in event
        time, "efron", "breslow" or "exact", . See survival::coxph for definitions. 
        Default is "efron" if specified =NULL}
-  \item{cph.redunCorr}{Level of correlation required before declare variables
-       are redundant}
   \item{arguments}{Logical. TRUE causes display of arguments of forsearch_xxx
        function}
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
+\details{It is not possible to skip step 1 here, as it would be when running
+      forsearch_xxx functions because of the blinding of observation numbers}
 \value{LIST, unnecessary elements for current analysis are NULL
   \item{Analysis}{"lme", "lm", "glm", or "cph"}
   \item{Unmask}{Data frame of original and masked values}
@@ -100,16 +98,16 @@ Assigns identification randomly to one of the variables of the dataset as chosen
 {https://CRAN.R-project.org/package=forsearch}
 }
 \author{William R. Fairweather}
-%\examples{
-%Observation <- 1:14
-%Dose <- c(3.4,5.2,7,8.5,10.5,13,18,21,28,6.5,10,14,21.5,29)
-%Prep <- factor(c(rep(0,9),rep(1,5)))
-%Convulse <- c(0,5,11,14,18,21,23,30,27,2,10,18,21,27)
-%Total <- c(33,32,38,37,40,37,31,37,30,40,30,40,35,37)
-%NoConvulse <- Total-Convulse
-%mice <- data.frame(Observation,Dose,Prep,Convulse,Total,NoConvulse)
-%brMask(data=mice,blinded="Prep",analysis="glm",initial.sample=100,
-%fixed=Convulse~Prep:Dose,glm.response.cols=c(4,6),glm.indep.cols=c(2,3),
-%glm.family=binomial("log"),glm.binomialrhs="Dose+Prep")
-%}
+\examples{
+Observation <- 1:14
+Dose <- c(3.4,5.2,7,8.5,10.5,13,18,21,28,6.5,10,14,21.5,29)
+Prep <- factor(c(rep(0,9),rep(1,5)))
+Convulse <- c(0,5,11,14,18,21,23,30,27,2,10,18,21,27)
+Total <- c(33,32,38,37,40,37,31,37,30,40,30,40,35,37)
+NoConvulse <- Total-Convulse
+mice <- data.frame(Observation,Dose,Prep,Convulse,Total,NoConvulse)
+brMask(data=mice,blinded="Prep",analysis="glm",initial.sample=100,
+fixed=Convulse~Prep:Dose,glm.response.cols=c(4,6),glm.indep.cols=c(2,3),
+glm.family=binomial("log"),glm.binomialrhs="Dose+Prep")
+}
 \keyword{ manip }

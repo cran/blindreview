@@ -1,4 +1,18 @@
-9/13/2003 blindreview version 1.3.0
+11/9/2023 blindreview version 1.3.1
+===================================
+* Major: None  
+
+* Moderate: None
+
+* Minor: 
+  + Added plot of anova for forward search of lm, lme, and cph in 
+     plotdiag.blind.all
+  + Removed ability to skip step 1 of the forward search procedure
+     because of the blinding of observation numbers
+  + Corrected call to forsearch_glm in brMask    
+
+
+9/13/2023 blindreview version 1.3.0
 ===================================
 * Major: None  
 

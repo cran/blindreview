@@ -1,7 +1,7 @@
 #' @export
 brMask <-
 function (data, blinded, analysis, 
-initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, 
+initial.sample=1000, n.obs.per.level=1,  
 
 fixed=NULL,
 
@@ -11,11 +11,7 @@ glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, glm.indep.cols=NULL,
 glm.formula=NULL, glm.binomialrhs=NULL, glm.family=NULL,
 
 cph.formula.elements=NULL, cph.event.time=NULL, cph.status=NULL, cph.x=NULL, 
-cph.ties = NULL, cph.redunCorr = 0.9, 
-
-arguments=FALSE, 
-
-verbose=TRUE) {
+cph.ties = NULL, arguments=FALSE, verbose=TRUE) {
 
      # NAME                                               brMask
      #
@@ -23,11 +19,11 @@ verbose=TRUE) {
      #                         element holding date and time of blinded review
      #
      # INPUT data          Dataset to be blinded prior to forward search
-     #       blinded       Character column name of variable to be blinded
+     #       blinded       Character column name of variable to be blinded. Must be a factor variable
      #       analysis      Character variable for forsearch analysis to be run; xxx part of forsearch_xxx
      #       arguments     Logical. TRUE causes display of arguments of forsearch_xxx function
      #
-     #
+     #                     Other arguments depending on analysis
      MC <- match.call()
      if(verbose) {
           print("", quote=FALSE)
@@ -59,6 +55,8 @@ verbose=TRUE) {
      got.one <- (blinded != namesdata)
      if(all(got.one))stop("No variable in the dataset has been identified as the one to blind.")
      blindcol <- (1:ncolsdata)[!got.one]
+     zzz <- data[,blindcol]
+     if(!is.factor(zzz))stop("Column to be blinded must be a factor")
      #
      ###########################################################
      # Randomize rows of data frame of observations            #
@@ -123,15 +121,15 @@ verbose=TRUE) {
      if(analysis=="lme"){
           if(arguments)Hmisc::prn(args(forsearch::forsearch_lme))
 
-          forsearch.out <- forsearch::forsearch_lme(fixed=fixed, data=df2, random=lme.random, formula=lme.formula,
-              initial.sample=initial.sample, n.obs.per.level=n.obs.per.level, skip.step1=skip.step1,   
+          forsearch.out <- forsearch::forsearch_lme(fixedform=fixed, data=df2, randomform=lme.random,
+              initial.sample=initial.sample, n.obs.per.level=n.obs.per.level,    
               unblinded=FALSE, verbose=FALSE)
     }
      if(analysis=="lm"){
           if(arguments)Hmisc::prn(args(forsearch::forsearch_lm))
 
           forsearch.out <- forsearch::forsearch_lm(formula=fixed, data=df2, initial.sample=initial.sample,
-                   n.obs.per.level=n.obs.per.level, skip.step1=skip.step1, unblinded=FALSE, verbose=FALSE)
+                   n.obs.per.level=n.obs.per.level, unblinded=FALSE, verbose=FALSE)
      }
      if(analysis=="glm"){
           if(arguments)Hmisc::prn(args(forsearch::forsearch_glm))
@@ -139,16 +137,16 @@ verbose=TRUE) {
           forsearch.out <- forsearch::forsearch_glm(initial.sample=initial.sample, cobs=glm.cobs, 
                  response.cols=glm.response.cols, indep.cols=glm.indep.cols,
                  family=glm.family, formula=glm.formula, binomialrhs=glm.binomialrhs, data=df2, 
-                 n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi,
-                 skip.step1=skip.step1, unblinded=FALSE, verbose=FALSE)
+                 n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi, 
+                 unblinded=FALSE, verbose=FALSE)
      }
      if(analysis=="cph"){
           if(arguments)Hmisc::prn(args(forsearch::forsearch_cph))
 
-          forsearch_out <- forsearch::forsearch_cph(formula.elements=cph.formula.elements, event.time=cph.event.time, 
+          forsearch.out <- forsearch::forsearch_cph(formula.elements=cph.formula.elements, event.time=cph.event.time, 
                  status=cph.status, x=cph.x, initial.sample = initial.sample, 
-                 n.obs.per.level = n.obs.per.level, skip.step1 = skip.step1, ties = cph.ties, 
-                 redunCorr = cph.redunCorr, unblinded = FALSE, verbose = FALSE) 
+                 n.obs.per.level = n.obs.per.level, ties = cph.ties, 
+                 unblinded = FALSE, verbose = FALSE, begin.diagnose=125) 
      }
      #
      ################################
@@ -189,6 +187,7 @@ verbose=TRUE) {
         "LogLikelihood"=                      forsearch.out$LogLikelihood,
         "Likelihood ratio test"=              forsearch.out$"Likelihood ratio test",
         "forsearch Call" =                    forsearch.out$Call,
+        "Proportionality Test"=               forsearch.out$"Proportionality Test",
          Call =                               MC
      )
      #

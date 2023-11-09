@@ -9,7 +9,7 @@ function(forn,
      Cairo=TRUE,
      printgraph=TRUE,
      legend="Dummy legend name",
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.blind.fixed
      #
@@ -36,17 +36,15 @@ function(forn,
                      cap,
                      filewidth=5, fileheight=5,
                      legendname,
-                     diagnose,verbose)
+                     verbose)
      {
 
           XVAR <- data[,xcol]
           YVAR <- data[,ycol]
           COV1 <- data[,cov1col]
           dfplot <- data.frame(XVAR,YVAR,COV1)
-                      if(diagnose)Hmisc::prn(dfplot)
           FACET <- data[,facetcol]
           dfplot <- data.frame(dfplot,FACET)
-                     if(diagnose)Hmisc::prn(dfplot)
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR,COV1)) + ggplot2::geom_point(ggplot2::aes(shape = COV1))
           out$labels$shape <- legendname
 
@@ -86,6 +84,7 @@ function(forn,
                print(date(), quote = F)
                print("", quote = F)
           }    #  verbose
+     return()
      }      #  plotB1
      #
      ############################
@@ -108,7 +107,6 @@ function(forn,
                col2 <- df3
                col3 <- "1"                       # default for only 1 coefficient
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
-                                  if(diagnose) Hmisc::prn(betacoeffs)
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
                # Call for plot using support function above #
@@ -120,7 +118,7 @@ function(forn,
                      vertlabel="Estimated beta coefficient, blinded",
                      cap=caption,
                      legendname=legend,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
 
           }
           else{
@@ -134,12 +132,10 @@ function(forn,
                     col3 <- c(col3,rep(namesdf3[i],times=nrows))
                }    #  i
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
-                                  if(diagnose) Hmisc::prn(betacoeffs)
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
                # Call for plot using support function above #
                ##############################################
-
                plotB1(data=betacoeffs, xcol=1, ycol=2, cov1col=3,
                      mtitle=maintitle,
                      stitle=subtitle,
@@ -147,14 +143,12 @@ function(forn,
                      vertlabel="Estimated beta coefficients, blinded",
                      cap=caption,
                      legendname=legend,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
 
           }    # else for is null cols
+     return()
      }
      # End of preparation function #
-
-
-
 
 ##################################################   Main function    ##############################################
 
@@ -162,56 +156,32 @@ function(forn,
 
      #############################################################
      # Extract each set of coefficients and form into data frame #
+     # Note location of zeros                                    #
      #############################################################
      df1 <- forn$"Fixed parameter estimates"                    # df1 already has a column of m
-     mcolumn <- df1[,1]
-     ndf1 <- dim(df1)[2]
-     df1 <- df1[,-1]
-     if(ndf1==2){
-          df1 <- matrix(df1,nrow=length(df1), ncol=1)
-          df1 <- as.data.frame(df1)
-     }
-     namesdf1 <- names(df1)
-     if(!is.null(coeff.codenums)) namesdf1 <- names(df1)[coeff.codenums]
-     df8 <- NULL
-     if(is.null(coeff.codenums)){
-          df8 <- df1
-     } 
-     else{
-          ccj <- coeff.codenums
-          lencc <- length(ccj)
-          df8 <- data.frame(df1[,ccj[1]])     # initialize df8
-          if(lencc > 1){
-               for(j in 2:lencc){
-                    ccj <- coeff.codenums[j]
-                    df8 <- data.frame(df8, df1[,ccj])
-               }
-          }    # lencc > 1
-     }  #  if else
-#prn(head(df8));prn(tail(df8))
+     Observation <- df1[,1]
+     #############################
+     # Remove observation number #
+     # Replace NAs with 0        #
+     #############################
+     dfab <- df1[,-1]
+     dimdfab <-dim(dfab)
+     dimdfab1 <- dimdfab[1]
+     dimdfab2 <- dimdfab[2]
 
-     dimdf8.1 <- dim(df8)[1]
-     dimdf8.2 <- dim(df8)[2]
-     df9 <- matrix(TRUE, nrow=dimdf8.1, ncol=dimdf8.2)
-     for(ri in 1:dimdf8.1){
-          for(rj in 1:dimdf8.2){
-               df9[ri,rj] <- df8[ri,rj]==0
-          }
+     index0 <- matrix(FALSE, nrow=dimdfab1, ncol=dimdfab2)
+     index0[dfab==0] <- TRUE
+     index0 <- apply(index0,1,all)
+     for(nn in 1:dimdfab2){
+          index <- is.na(dfab[,nn])
+          dfab[index,nn]<- 0
      }
-     rowdf9 <- apply(df9,1,all)
-     df7 <- df8[!rowdf9,]
-#prn(df7)
-     meandf7 <- apply(df7,2,mean)
-#prn(meandf7)
-     meandf7 <- matrix(meandf7,nrow=dim(df7)[1],ncol=dim(df7)[2], byrow=TRUE)
-#prn(meandf7)
-     df8 <- df7 - meandf7
-#prn(df8)
-     df8 <- cbind(mcolumn[!rowdf9],df8)
-     df8 <- as.data.frame(df8)
-     names(df8)<- c("m",namesdf1)
-#prn(df8)
-#stop("df8out")
+
+     rowmean <- apply(dfab,2,mean)
+     rowmean <- matrix(rowmean,nrow=dimdfab1,ncol=dimdfab2,byrow=TRUE)
+     df8 <- dfab - rowmean
+     df8 <- data.frame(Observation, df8)
+     df8 <- df8[!index0,]
      prepstuff(rightforn=df8)
      #
      if(verbose) {
@@ -220,5 +190,7 @@ function(forn,
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
+     
      }
+     return()
 }
