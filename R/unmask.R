@@ -6,14 +6,12 @@ function (object, obsrange=NULL, verbose=TRUE)
      #
      # VALUE         Printout of encoded and original treatment IDs and observation numbers
      #
-     # INPUT    object       List output from blind review (brMask or brPool
-     #          obsrange     Numeric vector or NULL. NULL causes printing of complete list of masked observation numbers. c(7,13,22,88) prints four
+     # INPUT    object       List output from blinding function (brMask)
+     #          obsrange     Null or numeric vector. NULL causes printing of complete list of masked observation numbers. c(7,13,22,88) prints four
      #                           observation numbers whose blinded values are 7, 13, 22 and 88.   1:22 prints blinded values 1 through 22.            
      #          verbose      Logical. TRUE causes printing of program ID before and after running.
      #
      # NOTE:  Always unmasks blinded variable; can print all or some of masked and original observation numbers 
-     #
-     # EXAMPLE:  Progname(   )
      #
      MC <- match.call()
      if(verbose) {

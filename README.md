@@ -1,17 +1,20 @@
 
 # blindreview
 
-The goal of blindreview is to provide a review of a database after masking the
-    identity of the treatments and of the observation numbers. The outcome is a
-    set of graphs that identify the best fitting observations and the worst
-    fitting observations to the planned analysis of the data without also
-    identifying the treatment that resulted in these observations. This forward
-    search of the database is carried out automatically using the forsearch 
-    package.
+The goal of blindreview is to transform a database by masking the
+    identity of the treatments and of the observation numbers so that the data
+    may be reviewed in the absence of treatment knowledge. This database
+    is suitable for a forward search using the forsearch package. The outcome of
+    that package is a set of graphs that identify the best fitting observations 
+    and the worst fitting observations to the planned analysis of the data 
+    without also identifying the treatment that resulted in these observations.
+    With regard to clinical trials, the US Food & Drug Administration guidance
+    for industry "E9 Statistical Principles for Clinical Trals" is an important
+    reference.
     
 ## Installation
 
-You can install the development version of blindreview as follows:
+Install the current version of blindreview with:
 ``` r
 library(blindreview)
 ```

@@ -1,3 +1,13 @@
+1/16/2024 blindreview version 2.0.0
+===================================
+* Major: Limited package to production of masked database. Previous versions
+    superseded
+    
+* Moderate: None
+
+* Minor: None 
+
+
 11/9/2023 blindreview version 1.3.1
 ===================================
 * Major: None  

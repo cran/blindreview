@@ -1,29 +1,15 @@
 #' @export
 brMask <-
-function (data, blinded, analysis, 
-initial.sample=1000, n.obs.per.level=1,  
-
-fixed=NULL,
-
-lme.random=NULL, lme.formula=NULL,
-
-glm.estimate.phi=TRUE, glm.cobs=1, glm.response.cols=NULL, glm.indep.cols=NULL, 
-glm.formula=NULL, glm.binomialrhs=NULL, glm.family=NULL,
-
-cph.formula.elements=NULL, cph.event.time=NULL, cph.status=NULL, cph.x=NULL, 
-cph.ties = NULL, arguments=FALSE, verbose=TRUE) {
+function (data, blinded, verbose=TRUE) {
 
      # NAME                                               brMask
      #
-     # VALUE               List containing forward search after randomizing levels of blinding variable and all observation numbers. Includes
-     #                         element holding date and time of blinded review
+     # VALUE               List with 3 levels: Masked Dataframe, Unmask, and Call.  The second (Unmask) is a list with 4 levels: 
+     #                         a level holding date and time of blinded review, a table of masked variables, and a table of masked observation numbers
      #
-     # INPUT data          Dataset to be blinded prior to forward search
-     #       blinded       Character column name of variable to be blinded. Must be a factor variable
-     #       analysis      Character variable for forsearch analysis to be run; xxx part of forsearch_xxx
-     #       arguments     Logical. TRUE causes display of arguments of forsearch_xxx function
+     # INPUT data          Dataset to be masked
+     #       blinded       Character name of variable to be blinded. Must be a factor variable
      #
-     #                     Other arguments depending on analysis
      MC <- match.call()
      if(verbose) {
           print("", quote=FALSE)
@@ -41,11 +27,6 @@ cph.ties = NULL, arguments=FALSE, verbose=TRUE) {
      uu <- dimnames(data)
      if(uu[[2]][1] != "Observation"){Hmisc::prn(uu);stop("First column of dataset must be 'Observation'")}
      #
-     ##########################################################################
-     # Ensure that one of the available analysis functions has been requested #
-     ##########################################################################  
-     if(analysis !="lme" & analysis !="lm" & analysis !="glm" & analysis !="cph")stop("Only one of the 4 analysis arguments may be used.")
-     #
      ##############################################################
      # Ensure that the named blinding variable is in the database #
      # and get the column number of the named variable            #
@@ -58,16 +39,16 @@ cph.ties = NULL, arguments=FALSE, verbose=TRUE) {
      zzz <- data[,blindcol]
      if(!is.factor(zzz))stop("Column to be blinded must be a factor")
      #
-     ###########################################################
-     # Randomize rows of data frame of observations            #
-     # df2 will be name of data frame that is blindly analyzed #
-     # Collect up new observation numbers for later decoding   # 
-     # and store these and original treatment IDs in ORIGobs   #
-     ###########################################################
+     #################################################################
+     # Randomize rows of data frame of observations                  #
+     # df2 will be name of data frame that is to be blindly analyzed #
+     # Collect up new observation numbers for later decoding         # 
+     # and store these and original treatment IDs in ORIGobs         #
+     #################################################################
      nobs <- dim(data)[1]
      randobs <- sample(1:nobs,nobs)        
      df2 <- data[randobs,]                                # rows of df2 are randomized rownumbers of input data frame
-     df2 <- df2[order(df2[,1]),]
+     df2[,1] <- 1:nobs
      ORIGobs <- data.frame(data[,1], randobs, data[,blindcol])                               #  ORIGobs is data frame
      names(ORIGobs) <- c("OriginalObs", "MaskedObs", "OriginalVar")
      names(df2)[1] <- "Observation"                    # renames variable 'Observation'
@@ -115,81 +96,19 @@ cph.ties = NULL, arguments=FALSE, verbose=TRUE) {
 
      treats <- treats[randtreats]
      #
-     #######################################################
-     # Run forsearch_xxx for chosen analysis #
-     #######################################################
-     if(analysis=="lme"){
-          if(arguments)Hmisc::prn(args(forsearch::forsearch_lme))
-
-          forsearch.out <- forsearch::forsearch_lme(fixedform=fixed, data=df2, randomform=lme.random,
-              initial.sample=initial.sample, n.obs.per.level=n.obs.per.level,    
-              unblinded=FALSE, verbose=FALSE)
-    }
-     if(analysis=="lm"){
-          if(arguments)Hmisc::prn(args(forsearch::forsearch_lm))
-
-          forsearch.out <- forsearch::forsearch_lm(formula=fixed, data=df2, initial.sample=initial.sample,
-                   n.obs.per.level=n.obs.per.level, unblinded=FALSE, verbose=FALSE)
-     }
-     if(analysis=="glm"){
-          if(arguments)Hmisc::prn(args(forsearch::forsearch_glm))
-
-          forsearch.out <- forsearch::forsearch_glm(initial.sample=initial.sample, cobs=glm.cobs, 
-                 response.cols=glm.response.cols, indep.cols=glm.indep.cols,
-                 family=glm.family, formula=glm.formula, binomialrhs=glm.binomialrhs, data=df2, 
-                 n.obs.per.level=n.obs.per.level, estimate.phi=glm.estimate.phi, 
-                 unblinded=FALSE, verbose=FALSE)
-     }
-     if(analysis=="cph"){
-          if(arguments)Hmisc::prn(args(forsearch::forsearch_cph))
-
-          forsearch.out <- forsearch::forsearch_cph(formula.elements=cph.formula.elements, event.time=cph.event.time, 
-                 status=cph.status, x=cph.x, initial.sample = initial.sample, 
-                 n.obs.per.level = n.obs.per.level, ties = cph.ties, 
-                 unblinded = FALSE, verbose = FALSE, begin.diagnose=125) 
-     }
-     #
+     ##########################
+     # Revise rownames of df2 #
+     ##########################
+     dimnames(df2)[[1]] <- 1:nobs
      ################################
      # Add date and time to ORIGobs #
      ################################
      ORIGobs <- list("Randomization Date"=date(), Variable=masktreats, Observations=ORIGobs)
      #
-     ##########################################################
-     # Output list has general, lm, glm, lme and cph elements #
-     ##########################################################
      listout.br <- list(
-        Analysis =                            analysis,
-        Unmask =                              ORIGobs,     
-
-        "Rows in stage" =                     forsearch.out$"Rows in stage",
-        "Standardized residuals" =            forsearch.out$"Standardized residuals", 
-        "Number of model parameters" =        forsearch.out$"Number of model parameters", 
-         Sigma =                              forsearch.out$Sigma, 
-        "Fixed parameter estimates" =         forsearch.out$"Fixed parameter estimates", 
-        "s^2" =                               forsearch.out$"s^2", 
-         Leverage =                           forsearch.out$Leverage, 
-        "Modified Cook distance" =            forsearch.out$"Modified Cook distance", 
-        "t statistics" =                      forsearch.out$"t statistics",
-
-         Family =                             forsearch.out$Family, 
-        "Residual deviance" =                 forsearch.out$"Residual deviance", 
-        "Null deviance" =                     forsearch.out$"Null deviance", 
-         PhiHat =                             forsearch.out$PhiHat, 
-        "Deviance residuals and augments" =   forsearch.out$"Deviance residuals and augments", 
-         AIC =                                forsearch.out$AIC,
-
-        "Number of rows included in Step 1" = forsearch.out$"Number of rows included in Step 1",
-        "Rows by subgroup" =                  forsearch.out$"Rows by subgroup", 
-        "Random parameter estimates" =        forsearch.out$"Random parameter estimates", 
-         Dims =                               forsearch.out$Dims, 
-        "Fit statistics" =                    forsearch.out$"Fit statistics", 
-        "Wald Test" =                         forsearch.out$"Wald Test",
-        "LogLikelihood"=                      forsearch.out$LogLikelihood,
-        "Likelihood ratio test"=              forsearch.out$"Likelihood ratio test",
-        "forsearch Call" =                    forsearch.out$Call,
-        "Proportionality Test"=               forsearch.out$"Proportionality Test",
-         Call =                               MC
-     )
+         "Masked Dataframe"=  df2,
+         Unmask =             ORIGobs,     
+         Call =               MC    )
      #
      if(verbose) {
           print("", quote=FALSE)
